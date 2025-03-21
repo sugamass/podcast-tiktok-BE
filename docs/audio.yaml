@@ -1,0 +1,228 @@
+openapi: 3.0.0
+x-stoplight:
+  id: l1kt8o2bsj9n0
+info:
+  title: audio
+  version: '1.0'
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  /audio:
+    post:
+      summary: Your POST endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AudioData'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+      operationId: post-audio
+      x-stoplight:
+        id: modv37k9dmnlt
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostAudioForRequest'
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AudioData'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+      operationId: get-audio
+      x-stoplight:
+        id: bbbfdg56d0522
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: type
+        - schema:
+            type: string
+          in: query
+          name: user_id
+components:
+  schemas:
+    PostAudioForRequest:
+      title: PostAudioForRequest
+      x-stoplight:
+        id: 9gwe4rypa7iif
+      type: object
+      required:
+        - title
+        - script
+        - description
+        - user_id
+        - reference
+        - tts
+        - voices
+        - speakers
+      properties:
+        title:
+          type: string
+          x-stoplight:
+            id: yrxrrllw31we3
+        script:
+          type: array
+          x-stoplight:
+            id: g6vbmdwllkxk3
+          items:
+            $ref: '#/components/schemas/ScriptData'
+        description:
+          type: string
+          x-stoplight:
+            id: 5rpgugdk8ni5k
+        user_id:
+          type: string
+          x-stoplight:
+            id: ehao79slqdo9k
+        reference:
+          type: array
+          x-stoplight:
+            id: cfrna24rptr79
+          items:
+            x-stoplight:
+              id: 9b14u8saoayzo
+            type: string
+        tts:
+          type: string
+          x-stoplight:
+            id: w4r0f0qh1mov2
+        voices:
+          type: array
+          x-stoplight:
+            id: vvveddlvehfwd
+          items:
+            x-stoplight:
+              id: z8lgv75frlcjy
+            type: string
+        speakers:
+          type: array
+          x-stoplight:
+            id: 5ttnzugd90xcc
+          items:
+            x-stoplight:
+              id: gxmq3m9nfp4of
+            type: string
+    ScriptData:
+      title: ScriptData
+      x-stoplight:
+        id: 8dylepeja1z2f
+      type: object
+      required:
+        - speaker
+        - text
+      properties:
+        speaker:
+          type: string
+          x-stoplight:
+            id: 9xkbn41no2fms
+        text:
+          type: string
+          x-stoplight:
+            id: 7kh8j0vw53ak8
+        caption:
+          type: string
+          x-stoplight:
+            id: 53td5y44eaqd4
+    AudioData:
+      title: AudioData
+      x-stoplight:
+        id: cldg4pzltkiqq
+      type: object
+      required:
+        - id
+        - url
+        - title
+        - description
+        - reference
+        - tts
+        - voices
+        - speakers
+        - script
+        - created_by
+        - created_at
+      properties:
+        id:
+          type: string
+          x-stoplight:
+            id: 69eptgrwwnql3
+        url:
+          type: string
+          x-stoplight:
+            id: iulbu3564c3zy
+        title:
+          type: string
+          x-stoplight:
+            id: ldmupofnk3bpd
+        description:
+          type: string
+          x-stoplight:
+            id: lcl1tqj2p0427
+        reference:
+          type: array
+          x-stoplight:
+            id: ejc1jreulopsb
+          items:
+            x-stoplight:
+              id: gkifvhsogxstl
+            type: string
+        tts:
+          type: string
+          x-stoplight:
+            id: j498uo7q0xzw5
+        voices:
+          type: array
+          x-stoplight:
+            id: j76zawb52g5fi
+          items:
+            x-stoplight:
+              id: a6n2555p50g7e
+            type: string
+        speakers:
+          type: array
+          x-stoplight:
+            id: 0spo7sy8s0n92
+          items:
+            x-stoplight:
+              id: 8qso75pxf24ra
+            type: string
+        script:
+          type: array
+          x-stoplight:
+            id: xlnm786dhqr7k
+          items:
+            $ref: '#/components/schemas/ScriptData'
+        created_by:
+          type: string
+          x-stoplight:
+            id: amcvy5rd36x2z
+        created_at:
+          type: string
+          x-stoplight:
+            id: j8kx8ddywdxi8

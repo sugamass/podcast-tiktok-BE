@@ -1,0 +1,5 @@
+.env
+node_modules
+src/tmpStorage/
+src/graphaiTools/tmp/scratchpad/
+src/graphaiTools/agent/test/output/

@@ -1,9 +1,9 @@
 export type PodcastScript = {
   id: string;
-  title: string;
+  title?: string;
   padding: number | undefined; // 音声前後の余白(ms)
-  description: string;
-  reference: string[]; //  配列にする
+  description?: string;
+  reference?: string[]; //  配列にする
   tts: string; // default: openAI  "openAI" or "nijivoice"
   voices: string[];
   speakers: string[];
@@ -13,8 +13,8 @@ export type PodcastScript = {
   ttsAgent: string; // generated
   imageInfo: any[]; // generated
   aspectRatio: string | undefined; // "16:9" or "9:16"
-  created_by: string;
-  created_at: Date;
+  created_by?: string; // TODO 消す
+  created_at?: Date;
 };
 
 export type ScriptData = {
@@ -34,7 +34,7 @@ export type SpeakerType =
   | "student"
   | "other";
 
-export type ttsType = "openai" | "nijivoice";
+export type ttsType = "openAI" | "nijivoice";
 
 export type ttsAgentType = "ttsOpenaiAgent" | "ttsNijivoiceAgent";
 
@@ -50,4 +50,22 @@ export type AudioData = {
   script: ScriptData[];
   created_by: string;
   created_at: Date;
+  script_id?: string;
+};
+
+export type ScriptDataForTest = {
+  script: ScriptData[];
+  tts: string;
+  voices: string[];
+  speakers: string[];
+  scriptId?: string;
+  // filename?: string;
+  // voicemap?: Map<string, string>;
+  // ttsAgent?: string;
+};
+
+export type AudioUrlsForTest = {
+  m3u8_url: string;
+  mp3_urls: string[];
+  script_id: string;
 };

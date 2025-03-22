@@ -50,3 +50,41 @@ export const getMypostDao = async (
 
   return audioData;
 };
+
+export const postAudioDao = async (
+  pool: Pool,
+  audioData: AudioData
+): Promise<AudioData> => {
+  const scriptJson = JSON.stringify(audioData.script);
+
+  const query =
+    "INSERT INTO audio (id, title, padding, description, script, created_by, created_at, reference, tts, voices, speakers, url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *";
+  const res = await pool.query(query, [
+    audioData.id,
+    audioData.title,
+    undefined, // TODO padding
+    audioData.description,
+    scriptJson,
+    audioData.created_by,
+    audioData.created_at,
+    audioData.reference,
+    audioData.tts,
+    audioData.voices,
+    audioData.speakers,
+    audioData.url,
+  ]);
+
+  return {
+    id: res.rows[0].id,
+    url: res.rows[0].url,
+    title: res.rows[0].title,
+    description: res.rows[0].description,
+    reference: res.rows[0].reference,
+    tts: res.rows[0].tts,
+    voices: res.rows[0].voices,
+    speakers: res.rows[0].speakers,
+    script: res.rows[0].script,
+    created_by: res.rows[0].created_by,
+    created_at: res.rows[0].created_at,
+  };
+};

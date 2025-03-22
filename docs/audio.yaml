@@ -93,6 +93,33 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AudioTestRequest'
+  /audio/new:
+    post:
+      summary: Your POST endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            header-0:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AudioData'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+      operationId: post-audio-new
+      x-stoplight:
+        id: t875yobrpei92
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostNewAudioRequest'
 components:
   schemas:
     PostAudioForRequest:
@@ -311,3 +338,67 @@ components:
           type: string
           x-stoplight:
             id: t00yeucyi0p7q
+    PostNewAudioRequest:
+      title: PostNewAudioRequest
+      x-stoplight:
+        id: mikp7gdmkr3im
+      type: object
+      required:
+        - title
+        - script
+        - user_id
+        - tts
+        - voices
+        - speakers
+        - script_id
+      properties:
+        title:
+          type: string
+          x-stoplight:
+            id: bcfobyvu8dlnu
+        description:
+          type: string
+          x-stoplight:
+            id: a8a9imn0r1olz
+        script:
+          type: array
+          x-stoplight:
+            id: 894q3z5u6gr02
+          items:
+            $ref: '#/components/schemas/ScriptData'
+        user_id:
+          type: string
+          x-stoplight:
+            id: xyqqvcd3k2v6i
+        reference:
+          type: array
+          x-stoplight:
+            id: iala33uj23pa1
+          items:
+            x-stoplight:
+              id: z3lq7uw0i0i81
+            type: string
+        tts:
+          type: string
+          x-stoplight:
+            id: 9b7dggk5c5ul3
+        voices:
+          type: array
+          x-stoplight:
+            id: 7biw2bob795fy
+          items:
+            x-stoplight:
+              id: 9r8no8ly4ljz2
+            type: string
+        speakers:
+          type: array
+          x-stoplight:
+            id: ag3wfb7zhfelm
+          items:
+            x-stoplight:
+              id: ffr07q5gyy2tb
+            type: string
+        script_id:
+          type: string
+          x-stoplight:
+            id: ugmecqn2g91ht

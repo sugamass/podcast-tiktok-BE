@@ -2,6 +2,7 @@ import {
   postAudio,
   getAudio,
   postAudioTest,
+  postNewAudio,
 } from "@/application/usecase/AudioUsecase";
 import type { components } from "../type/audio";
 import {
@@ -9,6 +10,7 @@ import {
   convertRequestToPodcastScript,
   convertAudioDataListToResponse,
   convertRequestToScriptDataForTest,
+  convertRequestToAudioData,
 } from "../converter/AudioConverter";
 import { AudioData } from "@/domain/Audio";
 import { Pool } from "pg";
@@ -18,6 +20,8 @@ export type PostAudioForRequest = components["schemas"]["PostAudioForRequest"];
 export type AudioDataForResponse = components["schemas"]["AudioData"];
 export type AudioTestRequest = components["schemas"]["AudioTestRequest"];
 export type AudioTestResponse = components["schemas"]["AudioTestResponse"];
+export type PostNewAudioForRequest =
+  components["schemas"]["PostNewAudioRequest"];
 
 export const postAudioController = async (
   req: PostAudioForRequest,
@@ -42,6 +46,15 @@ export const postAudioTestController = async (
     script_id: audioData.script_id,
   };
   return res;
+};
+
+export const postNewAudioController = async (
+  req: PostNewAudioForRequest,
+  postgrespool: Pool
+): Promise<AudioDataForResponse> => {
+  const audioData = convertRequestToAudioData(req);
+  const res = await postNewAudio(audioData, postgrespool);
+  return convertAudioDataToResponse(res);
 };
 
 export const getAudioController = async (

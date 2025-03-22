@@ -26,7 +26,11 @@ import createDataForHlsAgent from "@/graphaiTools/agent/create_data_for_hls_agen
 import savePostgresqlAgent from "@/graphaiTools/agent/save_postgresql_agent";
 import waitForFileAgent from "@/graphaiTools/agent/wait_for_file_agent";
 import { Pool } from "pg";
-import { getAudioDao, getMypostDao } from "@/infrastructure/dao/AudioDao";
+import {
+  getAudioDao,
+  getMypostDao,
+  postAudioDao,
+} from "@/infrastructure/dao/AudioDao";
 import { nijivoiceActor } from "@/service/nijivoice";
 
 export const postAudio = async (
@@ -316,11 +320,15 @@ export const postAudio = async (
 export const postAudioTest = async (
   scriptData: ScriptDataForTest
 ): Promise<AudioUrlsForTest> => {
-  if (!scriptData.script_id) {
-    scriptData.script_id = uuidv4();
+  if (!scriptData.scriptId) {
+    scriptData.scriptId = uuidv4();
   }
 
-  const filename = scriptData.script_id.replace(/-/g, "_");
+  const filename = scriptData.scriptId.replace(/-/g, "_");
+
+  scriptData.script.forEach((element: ScriptData, index: number) => {
+    element.filename = filename + index;
+  });
 
   let ttsApiKey: string;
   if (scriptData.tts === "nijivoice") {
@@ -357,7 +365,7 @@ export const postAudioTest = async (
   const openaiTtsModel = "gpt-4o-mini-tts"; //最新版のモデル
 
   const podcastScript: PodcastScript = {
-    id: scriptData.script_id,
+    id: scriptData.scriptId,
     tts: scriptData.tts,
     voices: scriptData.voices,
     speakers: scriptData.speakers,
@@ -435,7 +443,7 @@ export const postAudioTest = async (
             process.env.PATH_BGM ?? "src/graphaiTools/music/StarsBeyondEx.mp3",
         },
         inputs: {
-          voiceFile: ":combineFiles",
+          voiceFile: ":combineFiles.outputFile",
           outFileName:
             "src/graphaiTools/tmp/output/${:script.filename}_bgm.mp3",
           script: ":script",
@@ -504,17 +512,20 @@ export const postAudioTest = async (
         },
         inputs: { fileName: ":convertData.fileName" },
       },
+      // TODO copy agentで十分
       output: {
         agent: (namedInputs: any) => {
           // const { outputDir } = params;
-          const { fileName } = namedInputs;
+          const { fileName, mp3Urls } = namedInputs;
           // console.log("outputDir:", outputDir);
           console.log("fileName:", fileName);
-          return fileName;
+          console.log("mp3Urls:", mp3Urls);
+          return { fileName, mp3Urls };
         },
         inputs: {
           fileName: ":convertData.fileName",
           waitfor: ":waitForOutput",
+          mp3Urls: ":aiPodcaster.combineFiles.mp3Urls",
         },
         if: ":waitForOutput",
         isResult: true,
@@ -525,21 +536,45 @@ export const postAudioTest = async (
   const fileCacheAgentFilter: AgentFilterFunction = async (context, next) => {
     const { namedInputs } = context;
     const { file } = namedInputs;
+    // try {
+    //   await fsPromise.access(file);
+    //   console.log("cache hit: " + file, namedInputs.text.slice(0, 10));
+    //
+    //   return true;
+    // } catch (__e) {
+    //   const output = (await next(context)) as Record<string, any>;
+    //   const buffer = output ? output["buffer"] : undefined;
+    //   if (buffer) {
+    //     console.log("writing: " + file);
+    //     await fsPromise.writeFile(file, buffer);
+    //     return true;
+    //   }
+    //   console.log("no cache, no buffer: " + file);
+    //   return false;
+    // }
     try {
       await fsPromise.access(file);
-      console.log("cache hit: " + file, namedInputs.text.slice(0, 10));
-      return true;
-    } catch (__e) {
-      const output = (await next(context)) as Record<string, any>;
-      const buffer = output ? output["buffer"] : undefined;
-      if (buffer) {
-        console.log("writing: " + file);
-        await fsPromise.writeFile(file, buffer);
-        return true;
-      }
-      console.log("no cache, no buffer: " + file);
-      return false;
+      console.log(
+        "cache hit (will overwrite): " + file,
+        namedInputs.text.slice(0, 10)
+      );
+      // キャッシュがあっても処理を続ける（上書き用）
+    } catch {
+      console.log("no cache, creating new file: " + file);
     }
+
+    // キャッシュの有無に関係なく next を実行して buffer を取得
+    const output = (await next(context)) as Record<string, any>;
+    const buffer = output ? output["buffer"] : undefined;
+
+    if (buffer) {
+      console.log("writing (overwriting): " + file);
+      await fsPromise.writeFile(file, buffer);
+      return true;
+    }
+
+    console.log("no buffer returned: " + file);
+    return false;
   };
 
   const agentFilters = [
@@ -573,17 +608,53 @@ export const postAudioTest = async (
   console.log("graphResult:", graphResult);
 
   let fileName = "";
-  for (const key in graphResult) {
-    if (typeof graphResult.output === "string") {
-      fileName = graphResult.output;
+  let mp3Urls = [];
+  for (const [_, value] of Object.entries(graphResult)) {
+    if (typeof value === "object") {
+      for (const [key2, value2] of Object.entries(value)) {
+        if (key2 == "fileName") {
+          fileName = value2;
+        } else if (key2 == "mp3Urls") {
+          mp3Urls = value2;
+        } else {
+          throw new Error("data not found");
+        }
+      }
     }
   }
 
   return {
     m3u8_url: m3u8fileUrl,
-    mp3_urls: [],
-    script_id: scriptData.script_id,
+    mp3_urls: mp3Urls,
+    script_id: scriptData.scriptId,
   };
+};
+
+export const postNewAudio = async (audioData: AudioData, pool: Pool) => {
+  const fileName = audioData.script_id?.replace(/-/g, "_") ?? "";
+  // scratchpad削除
+  const mp3FilePaths = audioData.script.map((element, index) => {
+    const mp3FileName = fileName + index + ".mp3";
+    return path.resolve("src/graphaiTools/tmp/scratchpad", fileName);
+  });
+
+  for (const filePath of mp3FilePaths) {
+    try {
+      await fsPromise.unlink(filePath);
+      console.log(`Deleted: ${filePath}`);
+    } catch (err) {
+      console.error(`Failed to delete: ${filePath}`, err);
+      throw new Error(`ファイル削除に失敗しました: ${filePath}`);
+    }
+  }
+
+  // postgreSQLにメタデータ保存
+  audioData.id = uuidv4();
+  audioData.url =
+    process.env.STORAGE_URL ??
+    "http://localhost:3000/" + "stream/" + fileName + ".m3u8";
+  const res = await postAudioDao(pool, audioData);
+  return res;
 };
 
 export const getAudio = async (

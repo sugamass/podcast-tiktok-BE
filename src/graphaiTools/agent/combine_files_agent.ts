@@ -5,9 +5,9 @@ import fs from "fs";
 import { PodcastScript } from "./type";
 
 const combineFilesAgent: AgentFunction<
-  null,
-  string,
-  { script: PodcastScript }
+  null, // params
+  Record<string, any>, // output
+  { script: PodcastScript } // input
 > = async ({ namedInputs }) => {
   const { script } = namedInputs;
   const outputFile = path.resolve(
@@ -70,7 +70,7 @@ const combineFilesAgent: AgentFunction<
     // }
   }
 
-  return outputFile;
+  return { outputFile, mp3Urls: scratchpadFilePaths };
 };
 
 const combineFilesAgentInfo: AgentFunctionInfo = {

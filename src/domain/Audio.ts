@@ -50,6 +50,7 @@ export type AudioData = {
   script: ScriptData[];
   created_by: string;
   created_at: Date;
+  script_id?: string;
 };
 
 export type ScriptDataForTest = {
@@ -57,7 +58,7 @@ export type ScriptDataForTest = {
   tts: string;
   voices: string[];
   speakers: string[];
-  script_id?: string;
+  scriptId?: string;
   // filename?: string;
   // voicemap?: Map<string, string>;
   // ttsAgent?: string;

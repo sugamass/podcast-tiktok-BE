@@ -4,6 +4,7 @@ import {
   postAudioController,
   getAudioController,
   postAudioTestController,
+  postNewAudioController,
 } from "@/interface/controller/AudioController";
 import { postScriptController } from "@/interface/controller/ScriptController";
 import path from "path";
@@ -62,6 +63,27 @@ app.post(
       res.status(200).json(result);
     } catch (error) {
       console.error("postAudioTestController error:", error);
+      res.status(500).json({
+        error:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      });
+    }
+  }
+);
+
+app.post(
+  "/audio/new",
+  // ログ出力用ミドルウェア
+  (req: Request, res: Response, next: NextFunction) => {
+    console.log("POST /audio/new 受信:", req.body);
+    next();
+  },
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await postNewAudioController(req.body, postgre_pool);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error("postNewAudioController error:", error);
       res.status(500).json({
         error:
           error instanceof Error ? error.message : "An unknown error occurred",

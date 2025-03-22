@@ -17,32 +17,6 @@ const createDataForHlsAgent: AgentFunction = async ({
     outputDir: outputDir,
   };
 
-  // ffmpeg(inputFilePath)
-  //   .outputOptions([
-  //     "-codec: copy",
-  //     `-hls_time ${hlsOptions.segmentTime}`,
-  //     `-hls_list_size ${hlsOptions.listSize}`,
-  //     `-hls_segment_filename ${path.join(
-  //       hlsOptions.outputDir,
-  //       hlsOptions.filePattern
-  //     )}`,
-  //   ])
-  //   .output(path.join(hlsOptions.outputDir, hlsOptions.playlistName))
-  //   .on("start", (commandLine) => {
-  //     console.log("FFmpeg command:", commandLine);
-  //   })
-  //   .on("progress", (progress) => {
-  //     console.log("progress:", progress);
-  //   })
-  //   .on("end", () => {
-  //     console.log("end");
-  //   })
-  //   .on("error", (err) => {
-  //     console.error("error:", err);
-  //     return { error: err };
-  //   })
-  //   .run();
-
   const deleteInputFile = async () => {
     try {
       await fs.promises.unlink(inputFilePath);

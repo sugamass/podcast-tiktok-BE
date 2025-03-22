@@ -3,6 +3,7 @@ import {
   getAudio,
   postAudioTest,
   postNewAudio,
+  deleteNewAudio,
 } from "@/application/usecase/AudioUsecase";
 import type { components } from "../type/audio";
 import {
@@ -55,6 +56,13 @@ export const postNewAudioController = async (
   const audioData = convertRequestToAudioData(req);
   const res = await postNewAudio(audioData, postgrespool);
   return convertAudioDataToResponse(res);
+};
+
+export const deleteNewAudioController = async (
+  script_id: string
+): Promise<void> => {
+  await deleteNewAudio(script_id);
+  return;
 };
 
 export const getAudioController = async (

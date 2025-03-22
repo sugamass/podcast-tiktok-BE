@@ -5,6 +5,7 @@ import {
   getAudioController,
   postAudioTestController,
   postNewAudioController,
+  deleteNewAudioController,
 } from "@/interface/controller/AudioController";
 import { postScriptController } from "@/interface/controller/ScriptController";
 import path from "path";
@@ -26,6 +27,11 @@ app.use(express.json());
 
 // ローカルストレージのファイルを公開
 app.use("/stream", express.static(path.join(__dirname, "tmpStorage")));
+
+app.use(
+  "/audio_test",
+  express.static(path.join(__dirname, "graphaiTools/tmp/scratchpad"))
+);
 
 // POST /audio エンドポイントの定義
 app.post(
@@ -91,6 +97,21 @@ app.post(
     }
   }
 );
+
+// DELETE /audio/new;
+app.delete("/audio/new", async (req: Request, res: Response) => {
+  try {
+    const id = req.query.script_id as string;
+    const result = await deleteNewAudioController(id);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("deleteAudioController error:", error);
+    res.status(500).json({
+      error:
+        error instanceof Error ? error.message : "An unknown error occurred",
+    });
+  }
+});
 
 // GET / audio;
 app.get("/audio", async (req: Request, res: Response) => {

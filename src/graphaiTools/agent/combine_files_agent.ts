@@ -17,6 +17,9 @@ const combineFilesAgent: AgentFunction<
   const silentLastPath = path.resolve("src/graphaiTools/music/silent800.mp3");
   const scratchpadDir = path.resolve("src/graphaiTools/tmp/scratchpad");
   const scratchpadFilePaths: string[] = [];
+  const mp3filenames: string[] = script.script.map(
+    (element: any) => `${element.filename}.mp3`
+  );
 
   const command = ffmpeg();
   script.script.forEach((element: any, index: number) => {
@@ -70,7 +73,7 @@ const combineFilesAgent: AgentFunction<
     // }
   }
 
-  return { outputFile, mp3Urls: scratchpadFilePaths };
+  return { outputFile, mp3Urls: mp3filenames };
 };
 
 const combineFilesAgentInfo: AgentFunctionInfo = {

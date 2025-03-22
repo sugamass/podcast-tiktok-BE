@@ -30,6 +30,7 @@ const createDataForHlsAgent: AgentFunction = async ({
     await new Promise((resolve, reject) => {
       ffmpeg(inputFilePath)
         .outputOptions([
+          "-y",
           "-codec: copy",
           `-hls_time ${hlsOptions.segmentTime}`,
           `-hls_list_size ${hlsOptions.listSize}`,

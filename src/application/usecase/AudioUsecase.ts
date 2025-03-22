@@ -608,20 +608,27 @@ export const postAudioTest = async (
   console.log("graphResult:", graphResult);
 
   let fileName = "";
-  let mp3Urls = [];
+  let mp3filenames: string[] = [];
   for (const [_, value] of Object.entries(graphResult)) {
     if (typeof value === "object") {
       for (const [key2, value2] of Object.entries(value)) {
         if (key2 == "fileName") {
           fileName = value2;
         } else if (key2 == "mp3Urls") {
-          mp3Urls = value2;
+          mp3filenames = value2;
         } else {
           throw new Error("data not found");
         }
       }
     }
   }
+
+  const mp3Urls = mp3filenames.map((filename) => {
+    return (
+      process.env.AUDIO_TEST_DIR_URL ??
+      "http://localhost:3000/" + "audio_test/" + filename
+    );
+  });
 
   return {
     m3u8_url: m3u8fileUrl,
@@ -655,6 +662,61 @@ export const postNewAudio = async (audioData: AudioData, pool: Pool) => {
     "http://localhost:3000/" + "stream/" + fileName + ".m3u8";
   const res = await postAudioDao(pool, audioData);
   return res;
+};
+
+//　ローカルに保存されたファイルを削除
+export const deleteNewAudio = async (scriptId: string): Promise<void> => {
+  const fileName = scriptId.replace(/-/g, "_");
+  const scratchpadDir = "src/graphaiTools/tmp/scratchpad";
+
+  // scratchpad内の.mp3ファイルを削除
+  try {
+    const files = await fsPromise.readdir(scratchpadDir);
+    const matchedFiles = files.filter((file) => file.startsWith(fileName));
+
+    for (const file of matchedFiles) {
+      const filePath = path.join(scratchpadDir, file);
+      try {
+        await fsPromise.unlink(filePath);
+        console.log(`Deleted: ${filePath}`);
+      } catch (err) {
+        console.error(`Failed to delete: ${filePath}`, err);
+        // return new Error(...) や throw も可能
+      }
+    }
+    if (matchedFiles.length === 0) {
+      console.log("No matching files found.");
+    }
+  } catch (err) {
+    console.error("Error reading directory:", err);
+    throw err;
+  }
+
+  // tmpStorage内の.m3u8ファイルと.tsファイルを削除
+  const tmpStorageDir = "src/tmpStorage";
+  const m3u8FilePath = path.join(tmpStorageDir, fileName + ".m3u8");
+  try {
+    const tmpStoragefiles = await fsPromise.readdir(tmpStorageDir);
+    const matchedTmpStorageFiles = tmpStoragefiles.filter((file) =>
+      file.startsWith(fileName)
+    );
+
+    for (const file of matchedTmpStorageFiles) {
+      const filePath = path.join(tmpStorageDir, file);
+      try {
+        await fsPromise.unlink(filePath);
+        console.log(`Deleted: ${filePath}`);
+      } catch (err) {
+        console.error(`Failed to delete: ${filePath}`, err);
+        throw err;
+      }
+    }
+  } catch (err) {
+    console.error(`Failed to delete: ${m3u8FilePath}`, err);
+    throw err;
+  }
+
+  return;
 };
 
 export const getAudio = async (

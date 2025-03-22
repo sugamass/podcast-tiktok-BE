@@ -50,7 +50,8 @@ export interface paths {
         put?: never;
         /** Your POST endpoint */
         post: operations["post-audio-new"];
-        delete?: never;
+        /** Your DELETE endpoint */
+        delete: operations["delete-audio-new"];
         options?: never;
         head?: never;
         patch?: never;
@@ -273,6 +274,40 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AudioData"];
                 };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "delete-audio-new": {
+        parameters: {
+            query?: {
+                script_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Bad Request */
             400: {

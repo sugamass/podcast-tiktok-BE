@@ -1,9 +1,15 @@
 import type {
   PostAudioForRequest,
   AudioDataForResponse,
+  AudioTestRequest,
+  AudioTestResponse,
 } from "../controller/AudioController";
-import type { PodcastScript } from "@/domain/Audio";
-import type { AudioData } from "@/domain/Audio";
+import type {
+  PodcastScript,
+  AudioData,
+  ScriptDataForTest,
+  AudioUrlsForTest,
+} from "@/domain/Audio";
 
 export const convertRequestToPodcastScript = (
   req: PostAudioForRequest
@@ -57,6 +63,29 @@ export const convertAudioDataToResponse = (
   };
 
   return res;
+};
+
+export const convertRequestToScriptDataForTest = (
+  req: AudioTestRequest
+): ScriptDataForTest => {
+  const scriptDataForTest: ScriptDataForTest = {
+    script:
+      req.script?.map((row) => {
+        return {
+          speaker: row.speaker,
+          text: row.text,
+          caption: undefined,
+          duration: 0,
+          filename: "",
+          imagePrompt: "",
+        };
+      }) ?? [],
+    tts: req?.tts ?? "openAI",
+    voices: req.voices ?? [],
+    speakers: req.speakers ?? [],
+  };
+
+  return scriptDataForTest;
 };
 
 export const convertAudioDataListToResponse = (

@@ -1,4 +1,10 @@
-import { PodcastScript, ScriptData, AudioData } from "@/domain/Audio";
+import {
+  PodcastScript,
+  ScriptData,
+  AudioData,
+  ScriptDataForTest,
+  AudioUrlsForTest,
+} from "@/domain/Audio";
 import { v4 as uuidv4 } from "uuid";
 import fsPromise from "fs/promises";
 import fs from "fs";
@@ -71,6 +77,8 @@ export const postAudio = async (
     process.env.STORAGE_URL ??
     "http://localhost:3000/" + "stream/" + podcastScript.filename + ".m3u8";
 
+  const openaiTtsModel = "gpt-4o-mini-tts"; //最新版のモデル
+
   const graphTts: GraphData = {
     nodes: {
       path: {
@@ -103,6 +111,7 @@ export const postAudio = async (
           throwError: true,
           voice: ":voice",
           apiKey: ttsApiKey,
+          model: openaiTtsModel,
           // speed: ":row.speed",
           // speed_global: ":script.speed",
         },
@@ -290,18 +299,291 @@ export const postAudio = async (
   const audioData: AudioData = {
     id: id,
     url: fileUrl,
-    title: podcastScript.title,
-    description: podcastScript.description,
-    reference: podcastScript.reference,
+    title: podcastScript.title ?? "",
+    description: podcastScript.description ?? "",
+    reference: podcastScript.reference ?? [],
     tts: podcastScript.tts,
     voices: podcastScript.voices,
     speakers: podcastScript.speakers,
     script: podcastScript.script,
     created_at: podcastScript.created_at,
-    created_by: podcastScript.created_by,
+    created_by: podcastScript.created_by ?? "",
   };
 
   return audioData;
+};
+
+export const postAudioTest = async (
+  scriptData: ScriptDataForTest
+): Promise<AudioUrlsForTest> => {
+  if (!scriptData.script_id) {
+    scriptData.script_id = uuidv4();
+  }
+
+  const filename = scriptData.script_id.replace(/-/g, "_");
+
+  let ttsApiKey: string;
+  if (scriptData.tts === "nijivoice") {
+    ttsApiKey = process.env.NIJIVOICE_API_KEY ?? "";
+  } else {
+    ttsApiKey = process.env.OPENAI_API_KEY ?? "";
+  }
+
+  let podcasterConcurrency = 8;
+  let ttsAgent: string;
+  if (scriptData.tts === "nijivoice") {
+    podcasterConcurrency = 1;
+    scriptData.voices = scriptData.voices?.map((actor) => {
+      return nijivoiceActor[actor];
+    });
+    ttsAgent = "ttsNijivoiceAgent";
+  } else {
+    scriptData.voices = scriptData.voices ?? ["shimmer", "echo"];
+    ttsAgent = "ttsOpenaiAgent";
+  }
+
+  const voicemap = scriptData.speakers?.reduce(
+    (map: any, speaker: string, index: number) => {
+      map[speaker] = scriptData.voices![index];
+      return map;
+    },
+    {}
+  );
+
+  const m3u8fileUrl =
+    process.env.STORAGE_URL ??
+    "http://localhost:3000/" + "stream/" + filename + ".m3u8";
+
+  const openaiTtsModel = "gpt-4o-mini-tts"; //最新版のモデル
+
+  const podcastScript: PodcastScript = {
+    id: scriptData.script_id,
+    tts: scriptData.tts,
+    voices: scriptData.voices,
+    speakers: scriptData.speakers,
+    script: scriptData.script,
+    filename: filename,
+    voicemap: voicemap,
+    ttsAgent: ttsAgent,
+    padding: undefined,
+    aspectRatio: undefined,
+    imageInfo: [],
+  };
+
+  const graphTts: GraphData = {
+    nodes: {
+      path: {
+        agent: "pathUtilsAgent",
+        params: {
+          method: "resolve",
+        },
+        inputs: {
+          dirs: ["src/graphaiTools/tmp/scratchpad", "${:row.filename}.mp3"],
+        },
+      },
+      voice: {
+        agent: (namedInputs: any) => {
+          const { speaker, voicemap, voice0 } = namedInputs;
+          return voicemap[speaker] ?? voice0;
+        },
+        inputs: {
+          speaker: ":row.speaker",
+          voicemap: ":script.voicemap",
+          voice0: ":script.voices.$0",
+        },
+      },
+      tts: {
+        agent: ":script.ttsAgent",
+        inputs: {
+          text: ":row.text",
+          file: ":path.path",
+        },
+        params: {
+          throwError: true,
+          voice: ":voice",
+          apiKey: ttsApiKey,
+          model: openaiTtsModel,
+          // speed: ":row.speed",
+          // speed_global: ":script.speed",
+        },
+      },
+    },
+  };
+
+  const graphPodcaster: GraphData = {
+    version: 0.6,
+    concurrency: podcasterConcurrency,
+    nodes: {
+      // script: {
+      //   value: {},
+      //   update: ":scriptForNest",
+      // },
+      map: {
+        agent: "mapAgent",
+        inputs: { rows: ":script.script", script: ":script" },
+        graph: graphTts,
+      },
+      combineFiles: {
+        agent: "combineFilesAgent",
+        inputs: { map: ":map", script: ":script" },
+        isResult: true,
+      },
+      addBGM: {
+        agent: "addBGMAgent",
+        params: {
+          musicFileName:
+            process.env.PATH_BGM ?? "src/graphaiTools/music/StarsBeyondEx.mp3",
+        },
+        inputs: {
+          voiceFile: ":combineFiles",
+          outFileName:
+            "src/graphaiTools/tmp/output/${:script.filename}_bgm.mp3",
+          script: ":script",
+        },
+        isResult: true,
+      },
+      title: {
+        agent: "copyAgent",
+        params: {
+          namedKey: "title",
+        },
+        console: {
+          after: true,
+        },
+        inputs: {
+          title:
+            "\n${:script.title}\n\n${:script.description}\nReference: ${:script.reference}\n",
+          waitFor: ":addBGM",
+        },
+        isResult: true,
+      },
+    },
+  };
+
+  const podcastGraphDataForPost: GraphData = {
+    version: 0.6,
+    concurrency: 8,
+    nodes: {
+      script: {
+        value: {},
+      },
+      aiPodcaster: {
+        agent: "nestedAgent",
+        inputs: {
+          script: ":script",
+        },
+        graph: graphPodcaster,
+      },
+      convertData: {
+        agent: "createDataForHlsAgent",
+        params: {
+          outputDir:
+            process.env.TS_OUTPUT_DIR ??
+            path.resolve(process.cwd(), "src", "tmpStorage"),
+          isDeleteInput: true,
+          // isDeleteInput: false,
+        },
+        inputs: {
+          inputFilePath: ":aiPodcaster.addBGM",
+          outputBaseName: ":script.filename",
+        },
+      },
+      // postgresql: {
+      //   agent: "savePostgresqlAgent",
+      //   params: { pool: ":postgresqlPool" },
+      //   inputs: { meta: ":script", url: fileUrl },
+      //   isResult: true,
+      // },
+      waitForOutput: {
+        agent: "waitForFileAgent",
+        params: {
+          outputDir:
+            process.env.TS_OUTPUT_DIR ??
+            path.resolve(process.cwd(), "src", "tmpStorage"),
+          timeout: 5000,
+        },
+        inputs: { fileName: ":convertData.fileName" },
+      },
+      output: {
+        agent: (namedInputs: any) => {
+          // const { outputDir } = params;
+          const { fileName } = namedInputs;
+          // console.log("outputDir:", outputDir);
+          console.log("fileName:", fileName);
+          return fileName;
+        },
+        inputs: {
+          fileName: ":convertData.fileName",
+          waitfor: ":waitForOutput",
+        },
+        if: ":waitForOutput",
+        isResult: true,
+      },
+    },
+  };
+
+  const fileCacheAgentFilter: AgentFilterFunction = async (context, next) => {
+    const { namedInputs } = context;
+    const { file } = namedInputs;
+    try {
+      await fsPromise.access(file);
+      console.log("cache hit: " + file, namedInputs.text.slice(0, 10));
+      return true;
+    } catch (__e) {
+      const output = (await next(context)) as Record<string, any>;
+      const buffer = output ? output["buffer"] : undefined;
+      if (buffer) {
+        console.log("writing: " + file);
+        await fsPromise.writeFile(file, buffer);
+        return true;
+      }
+      console.log("no cache, no buffer: " + file);
+      return false;
+    }
+  };
+
+  const agentFilters = [
+    {
+      name: "fileCacheAgentFilter",
+      agent: fileCacheAgentFilter,
+      nodeIds: ["tts"],
+    },
+  ];
+
+  const podcastGraphForPost = new GraphAI(
+    podcastGraphDataForPost,
+    {
+      ...agents,
+      pathUtilsAgent,
+      ttsOpenaiAgent,
+      ttsNijivoiceAgent,
+      addBGMAgent,
+      combineFilesAgent,
+      createDataForHlsAgent,
+      savePostgresqlAgent,
+      waitForFileAgent,
+    },
+    { agentFilters }
+  );
+
+  podcastGraphForPost.injectValue("script", podcastScript);
+
+  const graphResult = await podcastGraphForPost.run();
+  const errors = podcastGraphForPost.errors();
+  console.log("graphResult:", graphResult);
+
+  let fileName = "";
+  for (const key in graphResult) {
+    if (typeof graphResult.output === "string") {
+      fileName = graphResult.output;
+    }
+  }
+
+  return {
+    m3u8_url: m3u8fileUrl,
+    mp3_urls: [],
+    script_id: scriptData.script_id,
+  };
 };
 
 export const getAudio = async (

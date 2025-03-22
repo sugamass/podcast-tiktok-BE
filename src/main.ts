@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import {
   postAudioController,
   getAudioController,
+  postAudioTestController,
 } from "@/interface/controller/AudioController";
 import { postScriptController } from "@/interface/controller/ScriptController";
 import path from "path";
@@ -39,6 +40,28 @@ app.post(
       res.status(200).json(result);
     } catch (error) {
       console.error("postAudioController error:", error);
+      res.status(500).json({
+        error:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      });
+    }
+  }
+);
+
+// POST /audio/test エンドポイントの定義
+app.post(
+  "/audio/test",
+  // ログ出力用ミドルウェア
+  (req: Request, res: Response, next: NextFunction) => {
+    console.log("POST /audio/test 受信:", req.body);
+    next();
+  },
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await postAudioTestController(req.body);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error("postAudioTestController error:", error);
       res.status(500).json({
         error:
           error instanceof Error ? error.message : "An unknown error occurred",

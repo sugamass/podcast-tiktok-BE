@@ -37,29 +37,6 @@ const combineFilesAgent: AgentFunction<
     });
   });
 
-  // const promise = new Promise((resolve, reject) => {
-  //   command
-  //     .on("end", () => {
-  //       console.log("MP3 files have been successfully combined.");
-  //       resolve(0);
-  //     })
-  //     .on("error", (err: any) => {
-  //       console.error("Error while combining MP3 files:", err);
-  //       reject(err);
-  //     })
-  //     .mergeToFile(outputFile, path.dirname(outputFile));
-  // });
-
-  // await promise;
-
-  // // json出力
-  // // const outputScript = path.resolve(
-  // //   "src/graphaiTools/tmp/output/" + script.filename + ".json"
-  // // );
-  // // fs.writeFileSync(outputScript, JSON.stringify(script, null, 2));
-
-  // return outputFile;
-
   try {
     await new Promise((resolve, reject) => {
       command
@@ -77,20 +54,20 @@ const combineFilesAgent: AgentFunction<
     console.error("An error occurred:", error);
   } finally {
     // scratchpad 内のファイルを削除
-    try {
-      await Promise.all(
-        scratchpadFilePaths.map(async (file) => {
-          try {
-            await fs.promises.unlink(file);
-            console.log(`Deleted: ${file}`);
-          } catch (unlinkError) {
-            console.error(`Error deleting file ${file}:`, unlinkError);
-          }
-        })
-      );
-    } catch (cleanupError) {
-      console.error("Error while cleaning up scratchpad files:", cleanupError);
-    }
+    // try {
+    //   await Promise.all(
+    //     scratchpadFilePaths.map(async (file) => {
+    //       try {
+    //         await fs.promises.unlink(file);
+    //         console.log(`Deleted: ${file}`);
+    //       } catch (unlinkError) {
+    //         console.error(`Error deleting file ${file}:`, unlinkError);
+    //       }
+    //     })
+    //   );
+    // } catch (cleanupError) {
+    //   console.error("Error while cleaning up scratchpad files:", cleanupError);
+    // }
   }
 
   return outputFile;

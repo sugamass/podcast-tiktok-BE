@@ -1,0 +1,64 @@
+openapi: 3.0.0
+info:
+  title: Podcast Like API
+  version: 1.0.0
+  description: API for managing podcast likes
+paths:
+  '/podcasts/{id}/likes':
+    post:
+      summary: Add a like to a podcast
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Podcast ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+    delete:
+      summary: Remove a like from a podcast
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Podcast ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+    get:
+      summary: Get like count for a podcast
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Podcast ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer

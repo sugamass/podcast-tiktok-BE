@@ -1,0 +1,64 @@
+openapi: 3.0.0
+info:
+  title: Podcast Bookmark API
+  version: 1.0.0
+  description: API for managing podcast bookmarks
+paths:
+  '/podcasts/{id}/bookmarks':
+    post:
+      summary: Bookmark a podcast
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Podcast ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+    delete:
+      summary: Remove bookmark from a podcast
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Podcast ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+    get:
+      summary: Check if podcast is bookmarked
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Podcast ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookmarked:
+                    type: boolean

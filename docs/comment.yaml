@@ -1,0 +1,108 @@
+openapi: 3.0.0
+info:
+  title: Podcast Comment API
+  version: 1.0.0
+  description: API for managing podcast comments
+paths:
+  '/podcast/{podcast_id}/comments':
+    post:
+      summary: Post a comment to a podcast
+      parameters:
+        - name: podcastId
+          in: path
+          required: true
+          description: Podcast ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  description: Comment content
+      responses:
+        '201':
+          description: Comment created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  commentId:
+                    type: string
+                  success:
+                    type: boolean
+      x-stoplight:
+        id: kzvvk6c8wknss
+    get:
+      summary: Get all comments for a podcast
+      parameters:
+        - name: podcastId
+          in: path
+          required: true
+          description: Podcast ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    commentId:
+                      type: string
+                    created_by:
+                      type: string
+                      x-stoplight:
+                        id: 58t9ddjncq3t7
+                    comment:
+                      type: string
+                    created_at:
+                      type: string
+                      format: date-time
+                      x-stoplight:
+                        id: 2x1wjhynbpsza
+      x-stoplight:
+        id: uej2imlk2qtjz
+    parameters:
+      - schema:
+          type: string
+        name: podcast_id
+        in: path
+        required: true
+  '/comment/{comment_id}':
+    delete:
+      summary: Delete a comment
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: Comment ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Comment deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+      x-stoplight:
+        id: u2b5xh3o8xiy1
+    parameters:
+      - schema:
+          type: string
+        name: comment_id
+        in: path
+        required: true

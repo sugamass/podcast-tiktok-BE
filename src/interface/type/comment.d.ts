@@ -33,13 +33,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            commentId?: string;
-                            created_by?: string;
-                            comment?: string;
-                            /** Format: date-time */
-                            created_at?: string;
-                        }[];
+                        "application/json": components["schemas"]["PostCommentResponse"];
                     };
                 };
             };
@@ -72,10 +66,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            commentId?: string;
-                            success?: boolean;
-                        };
+                        "application/json": components["schemas"]["PostCommentResponse"];
                     };
                 };
             };
@@ -118,9 +109,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            success?: boolean;
-                        };
+                        "application/json": Record<string, never>;
                     };
                 };
             };
@@ -133,7 +122,15 @@ export interface paths {
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: never;
+    schemas: {
+        /** PostCommentResponse */
+        PostCommentResponse: {
+            id?: string;
+            comment?: string;
+            created_by?: string;
+            created_at?: string;
+        };
+    };
     responses: never;
     parameters: never;
     requestBodies: never;

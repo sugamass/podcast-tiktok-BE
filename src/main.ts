@@ -8,6 +8,10 @@ import {
   deleteNewAudioController,
 } from "@/interface/controller/AudioController";
 import { postScriptController } from "@/interface/controller/ScriptController";
+import {
+  postLikeController,
+  deleteLikeController,
+} from "@/interface/controller/LikeController";
 import path from "path";
 import fs from "fs";
 
@@ -138,6 +142,38 @@ app.post("/script/create", async (req: Request, res: Response) => {
     res.status(200).json(result);
   } catch (error) {
     console.error("postScriptController error:", error);
+    res.status(500).json({
+      error:
+        error instanceof Error ? error.message : "An unknown error occurred",
+    });
+  }
+});
+
+// POST /podcasts/:id/likes;
+app.post("/podcasts/:id/likes", async (req: Request, res: Response) => {
+  const podcastId = req.params.id;
+  const userId = "test_user"; // TODO
+  try {
+    await postLikeController(podcastId, userId, postgre_pool);
+    res.status(200).json({ message: "Like added successfully" });
+  } catch (error) {
+    console.error("Error adding like:", error);
+    res.status(500).json({
+      error:
+        error instanceof Error ? error.message : "An unknown error occurred",
+    });
+  }
+});
+
+// DELETE /podcasts/:id/likes;
+app.delete("/podcasts/:id/likes", async (req: Request, res: Response) => {
+  const podcastId = req.params.id;
+  const userId = "test_user"; // TODO
+  try {
+    await deleteLikeController(podcastId, userId, postgre_pool);
+    res.status(200).json({ message: "Like removed successfully" });
+  } catch (error) {
+    console.error("Error removing like:", error);
     res.status(500).json({
       error:
         error instanceof Error ? error.message : "An unknown error occurred",

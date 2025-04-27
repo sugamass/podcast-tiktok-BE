@@ -35,7 +35,7 @@ export const getMypostDao = async (
   const audioData: AudioData[] = res.rows.map((row) => {
     return {
       id: row.id,
-      url: row.url,
+      url: row.m3u8_path,
       title: row.title,
       description: row.description,
       reference: row.reference,
@@ -58,7 +58,7 @@ export const postAudioDao = async (
   const scriptJson = JSON.stringify(audioData.script);
 
   const query =
-    "INSERT INTO audio (id, title, padding, description, script, created_by, created_at, reference, tts, voices, speakers, url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *";
+    "INSERT INTO audio (id, title, padding, description, script, created_by, created_at, reference, tts, voices, speakers, m3u8_path) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *";
   const res = await pool.query(query, [
     audioData.id,
     audioData.title,
@@ -76,7 +76,7 @@ export const postAudioDao = async (
 
   return {
     id: res.rows[0].id,
-    url: res.rows[0].url,
+    url: res.rows[0].m3u8_path,
     title: res.rows[0].title,
     description: res.rows[0].description,
     reference: res.rows[0].reference,

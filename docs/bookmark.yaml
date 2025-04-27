@@ -21,9 +21,6 @@ paths:
             application/json:
               schema:
                 type: object
-                properties:
-                  success:
-                    type: boolean
     delete:
       summary: Remove bookmark from a podcast
       parameters:
@@ -40,9 +37,6 @@ paths:
             application/json:
               schema:
                 type: object
-                properties:
-                  success:
-                    type: boolean
     get:
       summary: Check if podcast is bookmarked
       parameters:

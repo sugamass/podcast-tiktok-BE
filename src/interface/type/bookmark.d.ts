@@ -57,9 +57,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            success?: boolean;
-                        };
+                        "application/json": Record<string, never>;
                     };
                 };
             };
@@ -83,9 +81,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            success?: boolean;
-                        };
+                        "application/json": Record<string, never>;
                     };
                 };
             };

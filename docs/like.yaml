@@ -1,4 +1,6 @@
 openapi: 3.0.0
+x-stoplight:
+  id: a8af28a5c0dcd
 info:
   title: Podcast Like API
   version: 1.0.0
@@ -21,9 +23,8 @@ paths:
             application/json:
               schema:
                 type: object
-                properties:
-                  success:
-                    type: boolean
+      x-stoplight:
+        id: cjtxjebdjiokg
     delete:
       summary: Remove a like from a podcast
       parameters:
@@ -40,9 +41,8 @@ paths:
             application/json:
               schema:
                 type: object
-                properties:
-                  success:
-                    type: boolean
+      x-stoplight:
+        id: 4yt6sjfo0kz5n
     get:
       summary: Get like count for a podcast
       parameters:
@@ -58,7 +58,18 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  count:
-                    type: integer
+                $ref: '#/components/schemas/GetLikeResponse'
+      x-stoplight:
+        id: hx9oyrsinvsiy
+components:
+  schemas:
+    GetLikeResponse:
+      title: GetLikeResponse
+      x-stoplight:
+        id: 4dhcxqagnu4vb
+      type: object
+      properties:
+        count:
+          type: number
+          x-stoplight:
+            id: ybgqffn8a8xki

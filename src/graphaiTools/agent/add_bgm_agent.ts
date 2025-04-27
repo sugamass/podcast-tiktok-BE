@@ -114,7 +114,7 @@ const addBGMAgent: AgentFunction<
       });
     });
   } finally {
-    await deleteVoiceFile();
+    // await deleteVoiceFile();
   }
 
   return outputFile;

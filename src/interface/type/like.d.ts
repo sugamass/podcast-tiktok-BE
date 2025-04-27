@@ -30,9 +30,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            count?: number;
-                        };
+                        "application/json": components["schemas"]["GetLikeResponse"];
                     };
                 };
             };
@@ -57,9 +55,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            success?: boolean;
-                        };
+                        "application/json": Record<string, never>;
                     };
                 };
             };
@@ -83,9 +79,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            success?: boolean;
-                        };
+                        "application/json": Record<string, never>;
                     };
                 };
             };
@@ -98,7 +92,12 @@ export interface paths {
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: never;
+    schemas: {
+        /** GetLikeResponse */
+        GetLikeResponse: {
+            count?: number;
+        };
+    };
     responses: never;
     parameters: never;
     requestBodies: never;

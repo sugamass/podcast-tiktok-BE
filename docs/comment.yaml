@@ -30,12 +30,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  commentId:
-                    type: string
-                  success:
-                    type: boolean
+                $ref: '#/components/schemas/PostCommentResponse'
       x-stoplight:
         id: kzvvk6c8wknss
     get:
@@ -53,23 +48,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    commentId:
-                      type: string
-                    created_by:
-                      type: string
-                      x-stoplight:
-                        id: 58t9ddjncq3t7
-                    comment:
-                      type: string
-                    created_at:
-                      type: string
-                      format: date-time
-                      x-stoplight:
-                        id: 2x1wjhynbpsza
+                $ref: '#/components/schemas/PostCommentResponse'
       x-stoplight:
         id: uej2imlk2qtjz
     parameters:
@@ -95,9 +74,6 @@ paths:
             application/json:
               schema:
                 type: object
-                properties:
-                  success:
-                    type: boolean
       x-stoplight:
         id: u2b5xh3o8xiy1
     parameters:
@@ -106,3 +82,27 @@ paths:
         name: comment_id
         in: path
         required: true
+components:
+  schemas:
+    PostCommentResponse:
+      title: PostCommentResponse
+      x-stoplight:
+        id: yryd43vpg827s
+      type: object
+      properties:
+        id:
+          type: string
+          x-stoplight:
+            id: uof7vj2lthmaz
+        comment:
+          type: string
+          x-stoplight:
+            id: wkn51zui57ai5
+        created_by:
+          type: string
+          x-stoplight:
+            id: k2v0574nkv869
+        created_at:
+          type: string
+          x-stoplight:
+            id: 3hfwwji72rwlf

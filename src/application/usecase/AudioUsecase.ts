@@ -651,7 +651,6 @@ export const postNewAudio = async (audioData: AudioData, pool: Pool) => {
       console.log(`Deleted: ${filePath}`);
     } catch (err) {
       console.error(`Failed to delete: ${filePath}`, err);
-      throw new Error(`ファイル削除に失敗しました: ${filePath}`);
     }
   }
 

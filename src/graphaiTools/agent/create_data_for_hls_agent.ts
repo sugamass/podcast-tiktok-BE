@@ -57,9 +57,9 @@ const createDataForHlsAgent: AgentFunction = async ({
         .run();
     });
   } finally {
-    if (isDeleteInput) {
-      await deleteInputFile();
-    }
+    // if (isDeleteInput) {
+    //   await deleteInputFile();
+    // }
   }
 
   return { fileName: hlsOptions.playlistName };

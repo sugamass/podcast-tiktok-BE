@@ -642,7 +642,7 @@ export const postNewAudio = async (audioData: AudioData, pool: Pool) => {
   // scratchpad削除
   const mp3FilePaths = audioData.script.map((element, index) => {
     const mp3FileName = fileName + index + ".mp3";
-    return path.resolve("src/graphaiTools/tmp/scratchpad", fileName);
+    return path.resolve("src/graphaiTools/tmp/scratchpad", mp3FileName);
   });
 
   for (const filePath of mp3FilePaths) {
@@ -651,7 +651,6 @@ export const postNewAudio = async (audioData: AudioData, pool: Pool) => {
       console.log(`Deleted: ${filePath}`);
     } catch (err) {
       console.error(`Failed to delete: ${filePath}`, err);
-      throw new Error(`ファイル削除に失敗しました: ${filePath}`);
     }
   }
 

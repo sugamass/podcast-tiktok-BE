@@ -1,0 +1,7 @@
+CREATE TABLE comments (
+    id VARCHAR PRIMARY KEY,
+    post_id VARCHAR NOT NULL,
+    created_by VARCHAR NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    comment VARCHAR NOT NULL
+);

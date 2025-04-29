@@ -1,0 +1,75 @@
+openapi: 3.0.0
+x-stoplight:
+  id: a8af28a5c0dcd
+info:
+  title: Podcast Like API
+  version: 1.0.0
+  description: API for managing podcast likes
+paths:
+  '/podcasts/{id}/likes':
+    post:
+      summary: Add a like to a podcast
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Podcast ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+      x-stoplight:
+        id: cjtxjebdjiokg
+    delete:
+      summary: Remove a like from a podcast
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Podcast ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+      x-stoplight:
+        id: 4yt6sjfo0kz5n
+    get:
+      summary: Get like count for a podcast
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Podcast ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLikeResponse'
+      x-stoplight:
+        id: hx9oyrsinvsiy
+components:
+  schemas:
+    GetLikeResponse:
+      title: GetLikeResponse
+      x-stoplight:
+        id: 4dhcxqagnu4vb
+      type: object
+      properties:
+        count:
+          type: number
+          x-stoplight:
+            id: ybgqffn8a8xki

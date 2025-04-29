@@ -37,23 +37,3 @@ export const removeBookmark = async (
     throw error;
   }
 };
-
-/**
- * ブックマーク状態を確認
- */
-export const checkBookmark = async (
-  pool: Pool,
-  podcastId: string,
-  userId: string
-): Promise<boolean> => {
-  try {
-    const result = await pool.query(
-      "SELECT 1 FROM bookmarks WHERE user_id = $1 AND post_id = $2",
-      [userId, podcastId]
-    );
-    return (result.rowCount || 0) > 0;
-  } catch (error) {
-    console.error("Error checking bookmark:", error);
-    throw error;
-  }
-};

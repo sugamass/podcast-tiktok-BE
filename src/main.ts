@@ -12,6 +12,10 @@ import {
   postLikeController,
   deleteLikeController,
 } from "@/interface/controller/LikeController";
+import {
+  postBookmarkController,
+  deleteBookmarkController,
+} from "@/interface/controller/BookmarkController";
 import path from "path";
 import fs from "fs";
 
@@ -174,6 +178,38 @@ app.delete("/podcasts/:id/likes", async (req: Request, res: Response) => {
     res.status(200).json({ message: "Like removed successfully" });
   } catch (error) {
     console.error("Error removing like:", error);
+    res.status(500).json({
+      error:
+        error instanceof Error ? error.message : "An unknown error occurred",
+    });
+  }
+});
+
+// POST /podcasts/:id/bookmarks;
+app.post("/podcasts/:id/bookmarks", async (req: Request, res: Response) => {
+  const podcastId = req.params.id;
+  const userId = "test_user"; // TODO
+  try {
+    await postBookmarkController(podcastId, userId, postgre_pool);
+    res.status(200).json({ message: "Bookmark added successfully" });
+  } catch (error) {
+    console.error("Error adding bookmark:", error);
+    res.status(500).json({
+      error:
+        error instanceof Error ? error.message : "An unknown error occurred",
+    });
+  }
+});
+
+// DELETE /podcasts/:id/bookmarks;
+app.delete("/podcasts/:id/bookmarks", async (req: Request, res: Response) => {
+  const podcastId = req.params.id;
+  const userId = "test_user";
+  try {
+    await deleteBookmarkController(podcastId, userId, postgre_pool);
+    res.status(200).json({ message: "Bookmark removed successfully" });
+  } catch (error) {
+    console.error("Error removing bookmark:", error);
     res.status(500).json({
       error:
         error instanceof Error ? error.message : "An unknown error occurred",

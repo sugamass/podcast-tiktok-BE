@@ -8,9 +8,9 @@ CREATE TABLE audio (
     updated_at TIMESTAMP,
     deleted_at TIMESTAMP,
     created_by VARCHAR,
-    reference []VARCHAR,
+    reference VARCHAR[],
     tts VARCHAR,
-    voices []VARCHAR,
-    speakers []VARCHAR,
+    voices VARCHAR[],
+    speakers VARCHAR[],
     m3u8_path VARCHAR
 );

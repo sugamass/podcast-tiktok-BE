@@ -16,8 +16,12 @@ import {
   postBookmarkController,
   deleteBookmarkController,
 } from "@/interface/controller/BookmarkController";
+import {
+  postCommentController,
+  getCommentsController,
+  deleteCommentController,
+} from "@/interface/controller/CommentController";
 import path from "path";
-import fs from "fs";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -210,6 +214,60 @@ app.delete("/podcasts/:id/bookmarks", async (req: Request, res: Response) => {
     res.status(200).json({ message: "Bookmark removed successfully" });
   } catch (error) {
     console.error("Error removing bookmark:", error);
+    res.status(500).json({
+      error:
+        error instanceof Error ? error.message : "An unknown error occurred",
+    });
+  }
+});
+
+/**
+ * コメント投稿
+ */
+app.post("/podcasts/:id/comments", async (req: Request, res: Response) => {
+  const podcastId = req.params.id;
+  const userId = "test_user"; // TODO: 認証実装時に置き換え
+  const comment = req.body.comment;
+  try {
+    await postCommentController(podcastId, userId, comment, postgre_pool);
+    res.status(200).json({ message: "Comment added successfully" });
+  } catch (error) {
+    console.error("Error posting comment:", error);
+    res.status(500).json({
+      error:
+        error instanceof Error ? error.message : "An unknown error occurred",
+    });
+  }
+});
+
+/**
+ * コメント一覧取得
+ */
+app.get("/podcasts/:id/comments", async (req: Request, res: Response) => {
+  const podcastId = req.params.id;
+  try {
+    const result = await getCommentsController(podcastId, postgre_pool);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error getting comments:", error);
+    res.status(500).json({
+      error:
+        error instanceof Error ? error.message : "An unknown error occurred",
+    });
+  }
+});
+
+/**
+ * コメント削除
+ */
+app.delete("/comments/:id", async (req: Request, res: Response) => {
+  const commentId = req.params.id;
+  const userId = "test_user"; // TODO: 認証実装時に置き換え
+  try {
+    await deleteCommentController(commentId, userId, postgre_pool);
+    res.status(200).json({ message: "Comment deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
     res.status(500).json({
       error:
         error instanceof Error ? error.message : "An unknown error occurred",
